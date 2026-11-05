@@ -1,0 +1,10 @@
+# Зависимости приложения «МФК Мультисервис» (MFC_Multiservice_*.py)
+# tkinter входит в стандартную поставку Python (python-tk для Linux-сборщиков CI)
+
+pandas>=2.0
+openpyxl>=3.1          # чтение .xlsx и запись отчётов (pd.read_excel / df.to_excel)
+paramiko>=3.0          # SSH/SFTP подключение к МФК
+
+# Инструменты разработки и сборки (в EXE не входят)
+pytest>=7.0
+pyinstaller>=6.0
