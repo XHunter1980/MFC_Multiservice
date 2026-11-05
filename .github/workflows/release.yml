@@ -1,0 +1,88 @@
+name: Release build
+
+# Сборка Windows EXE и публикация GitHub Release при создании тега v*.*
+# (например v9.6). Версия релиза берётся из версии исходника:
+# тег сверяется с APP_VERSION в version.py, которая, в свою очередь,
+# сверяется с VERSION_INFO основного файла MFC_Multiservice_*.py.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Прогон автотестов
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3-tk xvfb || true
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
+        run: xvfb-run -a python -m pytest tests/ -v || python -m pytest tests/ -v
+
+  build-release:
+    name: Сборка EXE и релиз (Windows)
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Determine and validate version (релиз = версия исходника)
+        id: version
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          python .github/scripts/get_version.py --tag "${TAG}" --github-output
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Windows EXE (иконка из multiservise.ico)
+        run: pyinstaller build.spec --noconfirm
+
+      - name: Package artifacts
+        shell: bash
+        run: |
+          cd dist
+          7z a -tzip ../MFC_Multiservice_${{ github.ref_name }}_windows.zip . || \
+            python -c "import shutil; shutil.make_archive('MFC_Multiservice_${{ github.ref_name }}_windows','zip','.')"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: МФК Мультисервис v${{ steps.version.outputs.version }}
+          body: |
+            ## МФК Мультисервис v${{ github.ref_name }}
+            Релиз собран автоматически GitHub Actions.
+
+            ### Что внутри
+            - `MFC_Multiservice_v${{ github.ref_name }}.exe` — портативное приложение для Windows 10/11 x64 (иконка — multiservise.ico).
+            - ZIP-архив с тем же исполняемым файлом.
+
+            Версия релиза взята из версии исходника (version.py / VERSION_INFO).
+            Руководство пользователя: https://github.com/${{ github.repository }}/blob/main/docs/USER_GUIDE.md
+          files: |
+            dist/MFC_Multiservice_v${{ github.ref_name }}.exe
+            MFC_Multiservice_${{ github.ref_name }}_windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
