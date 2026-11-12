@@ -6,19 +6,19 @@ import sys
 # Импортируем версию из version.py
 sys.path.insert(0, os.path.abspath('.'))
 try:
-    from version import __version__
+    from version import APP_VERSION
 except ImportError:
-    __version__ = "1.0.0"
+    APP_VERSION = "1.0.0"
 
 block_cipher = None
 
 a = Analysis(
-    ['MFC_Multiservice_9.6.py'],  # Точка входа (замените на ваш главный файл)
+    ['MFC_Multiservice_9.6.py'],
     pathex=[],
     binaries=[],
     datas=[
-        ('multiservise.ico', '.'),  # Иконка
-        ('version.py', '.'),  # Файл версии
+        ('multiservise.ico', '.'),
+        ('version.py', '.'),
     ],
     hiddenimports=[],
     hookspath=[],
@@ -40,18 +40,18 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name=f'MFC_Multiservice_{__version__}',
+    name=f'MFC_Multiservice_{APP_VERSION}',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,  # False для GUI приложения, True для консольного
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='multiservise.ico',  # Путь к иконке
+    icon='multiservise.ico',
 )
