@@ -8,3 +8,4 @@ paramiko>=3.0          # SSH/SFTP подключение к МФК
 # Инструменты разработки и сборки (в EXE не входят)
 pytest>=7.0
 pyinstaller>=6.0
+pyyaml>=6.0
