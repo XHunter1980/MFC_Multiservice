@@ -1,0 +1,35 @@
+name: Tests
+
+# Автотесты: запускаются на каждый push и pull request,
+# а также перед релизной сборкой (см. release.yml — job test).
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Pytest + проверка версии
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3-tk xvfb || true
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-xvfb 2>/dev/null || pip install pytest
+
+      - name: Check version consistency (version.py == VERSION_INFO исходника)
+        run: python .github/scripts/get_version.py --check
+
+      - name: Run unit tests
+        run: xvfb-run -a python -m pytest tests/ -v || python -m pytest tests/ -v
