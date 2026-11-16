@@ -11,7 +11,7 @@
 
 ### Вариант А: готовый EXE (рекомендуется)
 1. Откройте страницу релизов репозитория: `Releases` → выберите последний тег (например, `v9.6`).
-2. Скачайте `MFC_Multiservice_v9.6.exe` (или ZIP-архив) и поместите в любую папку. Установка не требуется — приложение портативное.
+2. Скачайте архив `MFC_Multiservice_v9.6_windows.zip` (внутри — портативный EXE) и поместите в любую папку. Установка не требуется — приложение портативное.
 
 ### Вариант Б: запуск из исходников
 ```bash
@@ -123,7 +123,7 @@ Windows EXE собирается PyInstaller с использованием и�
 ```bash
 pip install -r requirements.txt pyinstaller
 pyinstaller build.spec --noconfirm
-# Результат: dist\MFC_Multiservice_v<версия>.exe (onefile, windowed, иконка .ico)
+# Результат: dist\MFC_Multiservice_v<версия>.exe (onefile, без окна консоли, иконка multiservise.ico)
 ```
 
 Версия в имени EXE берётся из `version.py` (`APP_VERSION`).
