@@ -82,7 +82,7 @@ jobs:
             Версия релиза взята из версии исходника (version.py / VERSION_INFO).
             Руководство пользователя: https://github.com/${{ github.repository }}/blob/main/docs/USER_GUIDE.md
           files: |
-            dist/MFC_Multiservice_v${{ github.ref_name }}.exe
+            dist/MFC_Multiservice_${{ steps.version.outputs.version }}.exe
             MFC_Multiservice_${{ github.ref_name }}_windows.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
