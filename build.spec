@@ -12,53 +12,60 @@ PyInstaller spec-файл для сборки Windows EXE приложения �
 Сборка в CI: см. .github/workflows/release.yml
 """
 
+# -*- mode: python ; coding: utf-8 -*-
+
 import os
-from version import APP_VERSION  # версия релиза = версия исходника
+import sys
 
-# Имя основного исходного файла меняется вместе с версией
-# (MFC_Multiservice_9.6.py -> MFC_Multiservice_9.7.py и т.д.) — ищем glob'ом.
-main_script = None
-for f in sorted(os.listdir(SPECPATH)):
-    if f.startswith("MFC_Multiservice_") and f.endswith(".py"):
-        main_script = f
-if main_script is None:
-    raise SystemExit("Не найден исходный файл MFC_Multiservice_*.py")
+# Импортируем версию из version.py
+sys.path.insert(0, os.path.abspath('.'))
+try:
+    from version import APP_VERSION
+except ImportError:
+    APP_VERSION = "1.0.0"
 
-ICON = "multiservise.ico"
+block_cipher = None
 
 a = Analysis(
-    [os.path.join(SPECPATH, main_script)],
-    pathex=[SPECPATH],
+    ['MFC_Multiservice_9.6.py'],
+    pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=["openpyxl", "paramiko"],
+    datas=[
+        ('multiservise.ico', '.'),
+        ('version.py', '.'),
+    ],
+    hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
 )
 
-pyz = PYZ(a.pure)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
+    a.zipfiles,
     a.datas,
     [],
-    name=f"MFC_Multiservice_v{APP_VERSION}",
+    name=f'MFC_Multiservice_{APP_VERSION}',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,            # windowed-приложение (без консоли)
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=ICON,                # иконка приложения из .ico файла
+    icon='multiservise.ico',
 )
